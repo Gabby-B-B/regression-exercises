@@ -3,18 +3,10 @@
 
 # In[9]:
 
-
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-get_ipython().run_line_magic('matplotlib', 'inline')
-import seaborn as sns
-import env
+import numpy as np
 import os
-from sklearn.model_selection import train_test_split
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder, MinMaxScaler
-from pydataset import data
+import env
 
 
 # In[10]:
@@ -23,121 +15,34 @@ from pydataset import data
 from env import host, user, password
 
 
-# In[11]:
+# In[11]
+ 
+ #################### Acquire Mall Customers Data ##################
 
-
-def get_connection(db, user=env.user, host=env.host, password=env.password):
+def get_connection(db, user=user, host=host, password=password):
+    '''
+    This function uses my info from my env file to
+    create a connection url to access the Codeup db.
+    '''
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
+def new_mall_data():
+    '''
+    This function reads the mall customer data from the Codeup db into a df,
+    write it to a csv file, and returns the df. 
+    '''
+    sql_query = 'SELECT * FROM customers'
+    df = pd.read_sql(sql_query, get_connection('mall_customers'))
+    df.to_csv('mall_customers_df.csv')
+    return df
 
-# In a jupyter notebook, classification_exercises.ipynb, use a python module (pydata or seaborn datasets) containing datasets as a source from the iris data. Create a pandas dataframe, df_iris, from this data.
-# <ul>
-# <li>print the first 3 rows
-# <li>print the number of rows and columns (shape)
-# <li>print the column names
-# <li>print the data type of each column
-# <li>print the summary statistics for each of the numeric variables. Would you recommend rescaling the data based on these statistics?</ul>
-
-# In[21]:
-
-
-iris = pd.read_sql('SELECT * FROM measurements INNER JOIN species ON measurements.species_id=species.species_id', get_connection('iris_db'))
-iris.head()
-
-
-# In[27]:
-
-
-iris.to_csv('iris.csv')
-
-
-# In[28]:
-
-
-def get_iris_data():
-    filename = "iris.csv"
-    if os.path.isfile(filename):
-        return pd.read_csv(filename)
+def get_mall_data(cached=False):
+    '''
+    This function reads in mall customer data from Codeup database if cached == False 
+    or if cached == True reads in mall customer df from a csv file, returns df
+    '''
+    if cached or os.path.isfile('mall_customers_df.csv') == False:
+        df = new_mall_data()
     else:
-        # read the SQL query into a dataframe
-        df = pd.read_sql('SELECT * FROM measuresments', get_connection('iris_db'))
-
-        # Write that dataframe to disk for later. Called "caching" the data for later.
-        df.to_file(filename)
-
-        # Return the dataframe to the calling code
-        return df  
-
-
-# In[30]:
-
-
-df_iris = pd.read_csv('iris.csv', index_col=0)
-df_iris.head(3)
-
-
-# In[31]:
-
-
-df_iris.info()
-
-
-# In[16]:
-
-
-for col in df_iris.columns: 
-    print(col) 
-
-
-# In[32]:
-
-
-df_iris.dtypes
-#based off the data types i would convert the measurement and species id from an integer to a float
-
-
-# Read the Table1_CustDetails table from the Excel_Exercises.xlsx file into a dataframe named df_excel.
-# <ol>
-# <li> assign the first 100 rows to a new dataframe, df_excel_sample
-# <li>print the number of rows of your original dataframe
-# <li>print the first 5 column names
-# <li>print the column names that have a data type of object
-# <li>compute the range for each of the numeric variables.
-#     </ol>
-
-# In[33]:
-
-
-excel_df = pd.read_csv('telco.csv', index_col=0)
-excel_df.head(100)
-
-
-# In[34]:
-
-
-titanic=pd.read_sql('SELECT * FROM passengers', get_connection('titanic_db'))
-
-
-# In[36]:
-
-
-titanic.to_csv('titanic.csv')
-
-
-# In[26]:
-
-
-def get_titanic_data():
-    filename = "titanic.csv"
-    if os.path.isfile(filename):
-        return pd.read_csv(filename)
-    else:
-        # read the SQL query into a dataframe
-        df = pd.read_sql('SELECT * FROM passengers', get_connection('titanic_db'))
-
-        # Write that dataframe to disk for later. Called "caching" the data for later.
-        df.to_file(filename)
-
-        # Return the dataframe to the calling code
-        return df  
-
+        df = pd.read_csv('mall_customers_df.csv', index_col=0)
+    return df
