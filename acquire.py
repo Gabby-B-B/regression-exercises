@@ -96,26 +96,21 @@ def new_telco_data():
     writes it to a csv file, and returns the df.
     '''
     sql_query = """
-               SELECT * FROM customers 
-               INNER JOIN contract_types ON customers.contract_type_id=contract_types.contract_type_id 
-               INNER JOIN internet_service_types ONcustomers.internet_service_type_id=internet_service_types.internet_service_type_id 
-               INNER JOIN payment_types ON customers.payment_type_id=payment_types.payment_type_id'
+    
+SELECT *
+from customers
+RIGHT JOIN contract_types ON contract_types.contract_type_id=customers.contract_type_id;
+    
                 """
     df = pd.read_sql(sql_query, get_connection('telco_churn'))
-    df.to_csv('telco_df.csv')
+    df.to_csv('telco.csv')
     return df
 
-
-def get_telco_data():
+def get_telco_data(cached=False):
     '''
 This function reads telco data from the Codeup databased in cached == False or if cached == True reads in iris df from a csv file, returns df'''
-    if os.path.isfile(filename):
-        return pd.read_csv(filename)
+    if cached or os.path.isfile('telco.csv') == False:
+        df = new_telco_data()
     else:
-        # read the SQL query into a dataframe
-        df = pd.read_sql('SELECT * FROM customers INNER JOIN contract_types ON customers.contract_type_id=contract_types.contract_type_id INNER JOIN internet_service_types ON customers.internet_service_type_id=internet_service_types.internet_service_type_id INNER JOIN payment_types ON customers.payment_type_id=payment_types.payment_type_id', get_connection('telco_churn'))
-        # Write that dataframe to disk for later. Called "caching" the data for later.
-        df.to_file(filename)
-
-        # Return the dataframe to the calling code
-        return df  
+        df = pd.read_csv('telco.csv', index_col=0)
+    return df
