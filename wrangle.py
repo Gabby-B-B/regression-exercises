@@ -164,3 +164,7 @@ def wrangle_grades():
     df = grades.dropna().astype("int")
     return df
 
+def wrangle_telco():
+    telco = pd.read_csv("telco.csv")
+    telco.drop(columns=['gender', 'senior_citizen', 'partner', 'tech_support','device_protection','online_backup','dependents', 'phone_service', 'multiple_lines', 'internet_service_type_id', 'online_security','streaming_tv', 'streaming_movies', 'paperless_billing', 'payment_type_id', 'churn', 'contract_type_id'], inplace=True)
+    return df
